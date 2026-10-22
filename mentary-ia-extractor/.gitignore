@@ -1,0 +1,10 @@
+node_modules/
+generated/
+.env*
+!.env.example
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+coverage/

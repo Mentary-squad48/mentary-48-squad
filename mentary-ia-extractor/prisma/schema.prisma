@@ -1,0 +1,135 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+enum PapelUsuario {
+  DOCENTE
+  GESTOR
+
+  @@map("papel_usuario")
+}
+
+enum StatusProcessamento {
+  PENDENTE
+  PROCESSADO
+  ERRO
+
+  @@map("status_processamento")
+}
+
+enum StatusPlanoRecomposicao {
+  RASCUNHO_IA
+  APROVADO_DOCENTE
+
+  @@map("status_plano_recomposicao")
+}
+
+model Usuario {
+  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome               String                @db.VarChar
+  email              String                @unique @db.VarChar
+  senhaHash          String?               @map("senha_hash") @db.VarChar
+  authUserId         String?               @unique @map("auth_user_id") @db.Uuid
+  papel              PapelUsuario
+  documentos         Documento[]
+  simulados          Simulado[]
+  planosRecomposicao PlanoRecomposicaoIa[]
+
+  @@map("usuario")
+}
+
+model Documento {
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId           String              @map("usuario_id") @db.Uuid
+  nomeArquivo         String              @map("nome_arquivo") @db.VarChar
+  storageBucket       String?             @map("storage_bucket") @db.VarChar
+  storagePath         String?             @map("storage_path") @db.VarChar
+  contentType         String?             @map("content_type") @db.VarChar
+  statusProcessamento StatusProcessamento @default(PENDENTE) @map("status_processamento")
+  usuario             Usuario             @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  questoes            Questao[]
+
+  @@index([usuarioId])
+  @@map("documento")
+}
+
+model Questao {
+  id                   String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentoId          String?                     @map("documento_id") @db.Uuid
+  enunciado            String                      @db.Text
+  textoBase            String?                     @map("texto_base") @db.Text
+  alternativas         Json                        @db.JsonB
+  explicacao           String?                     @db.Text
+  componenteCurricular String?                     @map("componente_curricular") @db.VarChar
+  gabaritoCorreto      String?                     @map("gabarito_correto") @db.VarChar
+  descritorSaeb        String?                     @map("descritor_saeb") @db.VarChar
+  metadata             Json                        @default("{}") @db.JsonB
+  ehHomologada         Boolean                     @default(false) @map("eh_homologada")
+  embedding            Unsupported("vector(768)")?
+  documento            Documento?                  @relation(fields: [documentoId], references: [id], onDelete: SetNull)
+  itensSimulado        ItemSimulado[]
+  respostas            RespostaSimulado[]
+
+  @@index([documentoId])
+  @@index([descritorSaeb])
+  @@map("questao")
+}
+
+model Simulado {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId  String             @map("usuario_id") @db.Uuid
+  titulo     String             @db.VarChar
+  disciplina String             @db.VarChar
+  usuario    Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  itens      ItemSimulado[]
+  respostas  RespostaSimulado[]
+
+  @@index([usuarioId])
+  @@map("simulado")
+}
+
+model ItemSimulado {
+  simuladoId String   @map("simulado_id") @db.Uuid
+  questaoId  String   @map("questao_id") @db.Uuid
+  ordem      Int
+  simulado   Simulado @relation(fields: [simuladoId], references: [id], onDelete: Cascade)
+  questao    Questao  @relation(fields: [questaoId], references: [id], onDelete: Restrict)
+
+  @@id([simuladoId, questaoId])
+  @@map("item_simulado")
+}
+
+model RespostaSimulado {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  simuladoId           String   @map("simulado_id") @db.Uuid
+  questaoId            String   @map("questao_id") @db.Uuid
+  identificadorAluno   String   @map("identificador_aluno") @db.VarChar
+  alternativaEscolhida String   @map("alternativa_escolhida") @db.VarChar
+  ehCorreta            Boolean  @map("eh_correta")
+  simulado             Simulado @relation(fields: [simuladoId], references: [id], onDelete: Cascade)
+  questao              Questao  @relation(fields: [questaoId], references: [id], onDelete: Restrict)
+
+  @@index([simuladoId, identificadorAluno])
+  @@index([questaoId])
+  @@map("resposta_simulado")
+}
+
+model PlanoRecomposicaoIa {
+  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId          String                  @map("usuario_id") @db.Uuid
+  turmaIdentificador String                  @map("turma_identificador") @db.VarChar
+  descritorFoco      String                  @map("descritor_foco") @db.VarChar
+  sugestaoTextoIa    String                  @map("sugestao_texto_ia") @db.Text
+  status             StatusPlanoRecomposicao @default(RASCUNHO_IA)
+  usuario            Usuario                 @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([usuarioId])
+  @@map("plano_recomposicao_ia")
+}
