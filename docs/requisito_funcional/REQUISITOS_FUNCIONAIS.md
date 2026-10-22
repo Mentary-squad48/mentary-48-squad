@@ -1,4 +1,4 @@
-# Especificação de Requisitos Funcionais - Sistema Mentary
+#  Especificação de Requisitos Funcionais - Sistema Mentary
 
 Este documento detalha os Requisitos Funcionais (RF) e os Requisitos de Sistema vinculados às funcionalidades da plataforma Mentary.
 

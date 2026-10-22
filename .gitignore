@@ -1,0 +1,25 @@
+# Secrets and local environment files. Keep safe templates versioned.
+.env
+.env.*
+!.env.example
+
+# Dependencies, generated clients, and build/test output.
+node_modules/
+generated/
+dist/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Python virtual environments and caches.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local logs and OS files.
+*.log
+npm-debug.log*
+Thumbs.db
+.DS_Store
+.vscode-test/
