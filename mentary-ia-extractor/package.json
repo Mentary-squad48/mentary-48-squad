@@ -6,6 +6,8 @@
   "scripts": {
     "test": "tsx --test tests/extractor.test.ts",
     "typecheck": "tsc --noEmit",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "node dist/src/server.js",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:check": "tsx scripts/check-db.ts",

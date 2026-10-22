@@ -8,8 +8,8 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('PORT deve ser um número entre 1 e 65535.');
 }
 
-const server = app.listen(port, () => {
-  console.log(`API Mentary disponível em http://localhost:${port}`);
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`API Mentary disponível na porta ${port}`);
   void prisma.documento.findMany({
     where: { statusProcessamento: 'PENDENTE', storagePath: { not: null } },
     select: { id: true },
