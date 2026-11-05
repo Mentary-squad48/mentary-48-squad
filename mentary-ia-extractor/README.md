@@ -81,6 +81,8 @@ npm run api
 
 A API aceita tokens de acesso do Supabase Auth no cabeçalho `Authorization`.
 
+- Para executar os testes passo a passo com Postman, consulte [TESTES_API.md](./TESTES_API.md).
+- Para consultar os modelos Gemini registrados e os resultados observados, consulte [MODELOS_IA_E_TESTES.md](./MODELOS_IA_E_TESTES.md).
 - `POST /api/v1/documents` — envia um arquivo multipart no campo `file` (PDF, PNG ou JPG; máximo de 25 MB). Retorna `202` enquanto a extração é executada.
 - `GET /api/v1/documents` — lista os documentos e as questões extraídas do usuário autenticado.
 - `GET /api/v1/documents/:id` — consulta o estado e as questões de um documento pertencente ao usuário.
