@@ -1,0 +1,108 @@
+.extrator__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 56px;
+  align-items: center;
+}
+
+.extrator__left,
+.extrator__right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.extrator__review { width: 100%; }
+.extrator__error { color: var(--bad-text); font-size: 14px; }
+
+/* Card do arquivo */
+.filecard {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--gray);
+  border-radius: 20px;
+}
+
+.filecard--empty {
+  flex-direction: column;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.filecard__icon { color: var(--blue-text); flex-shrink: 0; }
+
+.filecard__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filecard__name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filecard__info small { color: var(--text-muted); }
+
+.filecard__remove {
+  display: flex;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+}
+
+.filecard__remove:hover { color: var(--bad-text); }
+
+/* Progresso e status */
+.progress {
+  width: 100%;
+  max-width: 220px;
+  height: 8px;
+  background: var(--gray-dark);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--blue);
+  transition: width 0.4s;
+}
+
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.status--fila { color: var(--warn-text); }
+.status--processando { color: var(--blue-text); }
+.status--pronto { color: var(--ok-text); }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Dropzone */
+.dropzone {
+  padding: 40px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dropzone--active {
+  background: var(--accent-soft);
+  border-color: var(--blue);
+}
+
+.dropzone__icon { color: var(--blue-text); }
+.dropzone__title { font-size: 22px; text-align: center; }
+.dropzone__hint { font-size: 14px; color: var(--text-muted); }
+.dropzone__btn { margin-top: 8px; padding: 10px 20px; font-size: 14px; }
