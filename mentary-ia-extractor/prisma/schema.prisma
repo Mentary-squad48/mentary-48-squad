@@ -31,6 +31,14 @@ enum StatusPlanoRecomposicao {
   @@map("status_plano_recomposicao")
 }
 
+enum StatusQuestao {
+  PENDENTE
+  HOMOLOGADA
+  REJEITADA
+
+  @@map("status_questao")
+}
+
 model Usuario {
   id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String                @db.VarChar
@@ -41,6 +49,7 @@ model Usuario {
   documentos         Documento[]
   simulados          Simulado[]
   planosRecomposicao PlanoRecomposicaoIa[]
+  questoesValidadas  Questao[]             @relation("QuestaoValidador")
 
   @@map("usuario")
 }
@@ -72,13 +81,19 @@ model Questao {
   descritorSaeb        String?                     @map("descritor_saeb") @db.VarChar
   metadata             Json                        @default("{}") @db.JsonB
   ehHomologada         Boolean                     @default(false) @map("eh_homologada")
+  status               StatusQuestao               @default(PENDENTE)
+  validadorId          String?                     @map("validador_id") @db.Uuid
+  dataValidacao        DateTime?                   @map("data_validacao") @db.Timestamp(3)
+  motivoRejeicao       String?                     @map("motivo_rejeicao") @db.Text
   embedding            Unsupported("vector(768)")?
   documento            Documento?                  @relation(fields: [documentoId], references: [id], onDelete: SetNull)
+  validador            Usuario?                    @relation("QuestaoValidador", fields: [validadorId], references: [id], onDelete: SetNull)
   itensSimulado        ItemSimulado[]
   respostas            RespostaSimulado[]
 
   @@index([documentoId])
   @@index([descritorSaeb])
+  @@index([status])
   @@map("questao")
 }
 
