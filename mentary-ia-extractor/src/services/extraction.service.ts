@@ -49,6 +49,7 @@ export async function processDocument(documentId: string): Promise<void> {
     const questionRows = questions.map((question) => ({
       documentoId: document.id,
       enunciado: question.title,
+      textoBase: question.texto_base,
       alternativas: prismaJson(question.answer_options),
       explicacao: question.answers_explanation,
       componenteCurricular: question.subjects,

@@ -87,7 +87,13 @@ A API aceita tokens de acesso do Supabase Auth no cabeçalho `Authorization`.
 - `GET /api/v1/documents` — lista os documentos e as questões extraídas do usuário autenticado.
 - `GET /api/v1/documents/:id` — consulta o estado e as questões de um documento pertencente ao usuário.
 - `POST /api/v1/documents/:id/retry` — tenta processar novamente um documento com falha usando o arquivo armazenado.
-- `PATCH /api/v1/questions/:id/approve` — aprova explicitamente uma questão após revisão humana.
+- `GET /api/v1/questions/review-queue` — lista as questões pendentes de revisão, de documentos processados e pertencentes ao usuário autenticado.
+- `GET /api/v1/questions/:id` — consulta uma questão do usuário autenticado.
+- `PATCH /api/v1/questions/:id` — edita enunciado, texto-base, alternativas, explicação, gabarito, componente curricular, descritor SAEB e metadados.
+- `PATCH /api/v1/questions/:id/approve` — valida os dados mínimos e homologa a questão, registrando o validador e a data da decisão.
+- `PATCH /api/v1/questions/:id/reject` — rejeita uma questão com motivo, registrando rastreabilidade da decisão.
+- `GET /api/v1/questions/rejected` — lista as questões rejeitadas do usuário.
+- `GET /api/v1/questions/bank` — lista somente as questões homologadas que compõem o Banco de Questões ativo.
 - `GET /health` — verifica se o processo da API está ativo.
 
 Consulte o endpoint do documento até o estado mudar para `PROCESSADO` ou `ERRO`. Se houver falha, tente novamente pela rota de retry. Novas contas Auth recebem o papel `DOCENTE`; a API não aceita a atribuição de papel por metadados enviados pelo cliente. As consultas Prisma são filtradas pela propriedade do usuário. O RLS continua habilitado para as APIs públicas do Supabase; o Prisma usa uma conexão confiável exclusiva do servidor.

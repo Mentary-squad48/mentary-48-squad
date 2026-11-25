@@ -120,6 +120,78 @@ Se o documento estiver em `ERRO`, a API pode tentar processar novamente o arquiv
 
 Uma resposta com `PENDENTE` indica que a nova tentativa foi aceita. Volte ao passo anterior para consultar o resultado.
 
+## 7. Consultar a fila de revisão
+
+Depois que um documento estiver como `PROCESSADO`, crie uma requisição **GET**:
+
+```text
+https://mentary-48-squad.onrender.com/api/v1/questions/review-queue
+```
+
+Configure **Authorization → Bearer Token** com o token Supabase do mesmo usuário que enviou o documento. A resposta contém somente questões ainda não homologadas, de documentos processados que pertencem a esse usuário:
+
+```json
+{
+  "questions": [
+    {
+      "id": "ID-DA-QUESTAO",
+      "enunciado": "Enunciado extraído",
+      "textoBase": "Texto de apoio, quando houver",
+      "alternativas": ["Alternativa A", "Alternativa B"],
+      "gabaritoCorreto": "A",
+      "documento": {
+        "id": "ID-DO-DOCUMENTO",
+        "nomeArquivo": "arquivo.pdf"
+      }
+    }
+  ]
+}
+```
+
+Se não houver questões aguardando revisão, a API retorna `"questions": []`. A consulta é uma fila consultável, não um aviso instantâneo: o consumidor precisa chamar o endpoint novamente para verificar se chegaram novas questões.
+
+## 8. Editar uma questão
+
+Use `PATCH /api/v1/questions/ID-DA-QUESTAO` com o token do proprietário do documento e um corpo parcial:
+
+```json
+{
+  "enunciado": "Enunciado corrigido",
+  "textoBase": "Texto de apoio corrigido",
+  "alternativas": ["Alternativa A", "Alternativa B", "Alternativa C"],
+  "gabaritoCorreto": "B",
+  "componenteCurricular": "Matemática",
+  "descritorSaeb": "D23",
+  "metadata": {
+    "bncc": "EF09MA01",
+    "dificuldade": "MÉDIA"
+  }
+}
+```
+
+O campo `metadata` é mesclado com os metadados já existentes. Gabarito e alternativas são validados antes da homologação.
+
+## 9. Homologar ou rejeitar
+
+- Homologar: `PATCH /api/v1/questions/ID-DA-QUESTAO/approve`
+- Rejeitar: `PATCH /api/v1/questions/ID-DA-QUESTAO/reject`
+
+Para rejeitar, envie:
+
+```json
+{
+  "motivo": "Enunciado incompleto e gabarito não confirmado."
+}
+```
+
+Homologação exige enunciado preenchido, entre 2 e 26 alternativas e gabarito correspondente a uma alternativa. A decisão registra o usuário validador e a data. Questões homologadas entram no Banco de Questões; questões rejeitadas deixam de integrar o banco ativo.
+
+## 10. Consultar o Banco de Questões e rejeições
+
+- Banco ativo: `GET /api/v1/questions/bank`
+- Rejeitadas: `GET /api/v1/questions/rejected`
+- Detalhe de uma questão: `GET /api/v1/questions/ID-DA-QUESTAO`
+
 ## Diagnóstico rápido
 
 | Resultado | O que conferir |

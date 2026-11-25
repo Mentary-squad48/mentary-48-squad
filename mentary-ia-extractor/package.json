@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tsx --test tests/extractor.test.ts",
+    "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node dist/src/server.js",
