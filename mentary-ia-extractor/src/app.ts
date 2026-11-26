@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import multer from 'multer';
 import documentsRouter from './routes/documents.routes.js';
 import questionsRouter from './routes/questions.routes.js';
+import simuladosRouter from './routes/simulados.routes.js';
 
 const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://127.0.0.1:5173')
   .split(',')
@@ -33,6 +34,7 @@ app.get('/health', (_request, response) => {
 });
 app.use('/api/v1/documents', documentsRouter);
 app.use('/api/v1/questions', questionsRouter);
+app.use('/api/v1/simulados', simuladosRouter);
 
 const errorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
   if (error instanceof multer.MulterError) {

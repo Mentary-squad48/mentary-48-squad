@@ -192,6 +192,55 @@ Homologação exige enunciado preenchido, entre 2 e 26 alternativas e gabarito c
 - Rejeitadas: `GET /api/v1/questions/rejected`
 - Detalhe de uma questão: `GET /api/v1/questions/ID-DA-QUESTAO`
 
+## 11. Montar e publicar um simulado
+
+Pesquise questões já homologadas da conta:
+
+```text
+GET /api/v1/simulados/questions?componenteCurricular=Matemática&dificuldade=Médio&page=1&pageSize=20
+```
+
+Filtros opcionais adicionais: `anoEscolar`, `bncc` e `descritorSaeb`. A resposta inclui paginação e as questões elegíveis.
+
+Crie o caderno enviando a lista de IDs na ordem desejada:
+
+```text
+POST /api/v1/simulados
+```
+
+```json
+{
+  "titulo": "Simulado de Matemática",
+  "disciplina": "Matemática",
+  "questaoIds": [
+    "ID-DA-QUESTAO-1",
+    "ID-DA-QUESTAO-2"
+  ]
+}
+```
+
+Para mudar a ordem ou composição antes de publicar:
+
+```text
+PUT /api/v1/simulados/ID-DO-SIMULADO/questions
+```
+
+```json
+{
+  "questaoIds": [
+    "ID-DA-QUESTAO-2",
+    "ID-DA-QUESTAO-1"
+  ]
+}
+```
+
+Consulte o caderno com `GET /api/v1/simulados/ID-DO-SIMULADO`. Em seguida, valide e publique:
+
+- `POST /api/v1/simulados/ID-DO-SIMULADO/validate`
+- `POST /api/v1/simulados/ID-DO-SIMULADO/publish`
+
+A validação bloqueia a publicação se o simulado estiver vazio ou houver alternativas/gabaritos inválidos. A resposta também informa avisos e distribuição de dificuldade, descritores SAEB e gabaritos. Simulados publicados não podem ser alterados.
+
 ## Diagnóstico rápido
 
 | Resultado | O que conferir |

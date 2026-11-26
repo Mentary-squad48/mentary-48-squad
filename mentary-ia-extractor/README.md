@@ -94,6 +94,12 @@ A API aceita tokens de acesso do Supabase Auth no cabeçalho `Authorization`.
 - `PATCH /api/v1/questions/:id/reject` — rejeita uma questão com motivo, registrando rastreabilidade da decisão.
 - `GET /api/v1/questions/rejected` — lista as questões rejeitadas do usuário.
 - `GET /api/v1/questions/bank` — lista somente as questões homologadas que compõem o Banco de Questões ativo.
+- `GET /api/v1/simulados/questions` — pesquisa questões homologadas com filtros `componenteCurricular`, `anoEscolar`, `bncc`, `descritorSaeb`, `dificuldade` e paginação `page`/`pageSize`.
+- `POST /api/v1/simulados` — monta um simulado em ordem a partir de questões homologadas da conta.
+- `GET /api/v1/simulados` e `GET /api/v1/simulados/:id` — lista os simulados do usuário ou consulta seus detalhes com questões ordenadas.
+- `PUT /api/v1/simulados/:id/questions` — substitui/reordena as questões de um simulado ainda não publicado.
+- `POST /api/v1/simulados/:id/validate` — verifica questões, alternativas e gabaritos, retornando distribuição por dificuldade, descritor e gabarito.
+- `POST /api/v1/simulados/:id/publish` — publica somente um simulado previamente validado sem erros impeditivos.
 - `GET /health` — verifica se o processo da API está ativo.
 
 Consulte o endpoint do documento até o estado mudar para `PROCESSADO` ou `ERRO`. Se houver falha, tente novamente pela rota de retry. Novas contas Auth recebem o papel `DOCENTE`; a API não aceita a atribuição de papel por metadados enviados pelo cliente. As consultas Prisma são filtradas pela propriedade do usuário. O RLS continua habilitado para as APIs públicas do Supabase; o Prisma usa uma conexão confiável exclusiva do servidor.
