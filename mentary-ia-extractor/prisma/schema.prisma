@@ -39,6 +39,14 @@ enum StatusQuestao {
   @@map("status_questao")
 }
 
+enum StatusSimulado {
+  RASCUNHO
+  VALIDADO
+  PUBLICADO
+
+  @@map("status_simulado")
+}
+
 model Usuario {
   id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String                @db.VarChar
@@ -98,15 +106,20 @@ model Questao {
 }
 
 model Simulado {
-  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  usuarioId  String             @map("usuario_id") @db.Uuid
-  titulo     String             @db.VarChar
-  disciplina String             @db.VarChar
-  usuario    Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
-  itens      ItemSimulado[]
-  respostas  RespostaSimulado[]
+  id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId           String        @map("usuario_id") @db.Uuid
+  titulo              String        @db.VarChar
+  disciplina          String        @db.VarChar
+  status              StatusSimulado @default(RASCUNHO)
+  relatorioValidacao  Json?         @map("relatorio_validacao") @db.JsonB
+  dataValidacao       DateTime?     @map("data_validacao") @db.Timestamp(3)
+  dataPublicacao      DateTime?     @map("data_publicacao") @db.Timestamp(3)
+  usuario             Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  itens               ItemSimulado[]
+  respostas           RespostaSimulado[]
 
   @@index([usuarioId])
+  @@index([status])
   @@map("simulado")
 }
 
