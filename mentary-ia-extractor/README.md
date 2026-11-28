@@ -81,11 +81,25 @@ npm run api
 
 A API aceita tokens de acesso do Supabase Auth no cabeçalho `Authorization`.
 
+- Para executar os testes passo a passo com Postman, consulte [TESTES_API.md](./TESTES_API.md).
+- Para consultar os modelos Gemini registrados e os resultados observados, consulte [MODELOS_IA_E_TESTES.md](./MODELOS_IA_E_TESTES.md).
 - `POST /api/v1/documents` — envia um arquivo multipart no campo `file` (PDF, PNG ou JPG; máximo de 25 MB). Retorna `202` enquanto a extração é executada.
 - `GET /api/v1/documents` — lista os documentos e as questões extraídas do usuário autenticado.
 - `GET /api/v1/documents/:id` — consulta o estado e as questões de um documento pertencente ao usuário.
 - `POST /api/v1/documents/:id/retry` — tenta processar novamente um documento com falha usando o arquivo armazenado.
-- `PATCH /api/v1/questions/:id/approve` — aprova explicitamente uma questão após revisão humana.
+- `GET /api/v1/questions/review-queue` — lista as questões pendentes de revisão, de documentos processados e pertencentes ao usuário autenticado.
+- `GET /api/v1/questions/:id` — consulta uma questão do usuário autenticado.
+- `PATCH /api/v1/questions/:id` — edita enunciado, texto-base, alternativas, explicação, gabarito, componente curricular, descritor SAEB e metadados.
+- `PATCH /api/v1/questions/:id/approve` — valida os dados mínimos e homologa a questão, registrando o validador e a data da decisão.
+- `PATCH /api/v1/questions/:id/reject` — rejeita uma questão com motivo, registrando rastreabilidade da decisão.
+- `GET /api/v1/questions/rejected` — lista as questões rejeitadas do usuário.
+- `GET /api/v1/questions/bank` — lista somente as questões homologadas que compõem o Banco de Questões ativo.
+- `GET /api/v1/simulados/questions` — pesquisa questões homologadas com filtros `componenteCurricular`, `anoEscolar`, `bncc`, `descritorSaeb`, `dificuldade` e paginação `page`/`pageSize`.
+- `POST /api/v1/simulados` — monta um simulado em ordem a partir de questões homologadas da conta.
+- `GET /api/v1/simulados` e `GET /api/v1/simulados/:id` — lista os simulados do usuário ou consulta seus detalhes com questões ordenadas.
+- `PUT /api/v1/simulados/:id/questions` — substitui/reordena as questões de um simulado ainda não publicado.
+- `POST /api/v1/simulados/:id/validate` — verifica questões, alternativas e gabaritos, retornando distribuição por dificuldade, descritor e gabarito.
+- `POST /api/v1/simulados/:id/publish` — publica somente um simulado previamente validado sem erros impeditivos.
 - `GET /health` — verifica se o processo da API está ativo.
 
 Consulte o endpoint do documento até o estado mudar para `PROCESSADO` ou `ERRO`. Se houver falha, tente novamente pela rota de retry. Novas contas Auth recebem o papel `DOCENTE`; a API não aceita a atribuição de papel por metadados enviados pelo cliente. As consultas Prisma são filtradas pela propriedade do usuário. O RLS continua habilitado para as APIs públicas do Supabase; o Prisma usa uma conexão confiável exclusiva do servidor.

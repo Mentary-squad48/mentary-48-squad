@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { agruparPaginas, extrairDeImagem } from '../src/services/extractor.js';
+import { agruparPaginas, extrairDeImagem, interpretarQuestoes } from '../src/services/extractor.js';
 
 test('agruparPaginas returns no batches for an empty document', () => {
   assert.deepEqual(agruparPaginas(0), []);
@@ -38,4 +38,29 @@ test('agruparPaginas rejects invalid limits', () => {
 
 test('extrairDeImagem rejects unsupported extensions before reading or calling Gemini', async () => {
   await assert.rejects(extrairDeImagem('imagem.gif'), /Formato de imagem não suportado/);
+});
+
+test('interpretarQuestoes preserves the question support text separately from its prompt', () => {
+  const questions = interpretarQuestoes(JSON.stringify({
+    questoes: [{
+      texto_base: 'Leia o texto a seguir para responder à questão.',
+      title: 'Qual é a ideia principal?',
+      answer_options: ['Opção A', 'Opção B'],
+      correct_answer_index: 0,
+    }],
+  }));
+
+  assert.equal(questions[0]?.texto_base, 'Leia o texto a seguir para responder à questão.');
+  assert.equal(questions[0]?.title, 'Qual é a ideia principal?');
+});
+
+test('interpretarQuestoes requires text_base to be a string or null', () => {
+  assert.throws(() => interpretarQuestoes(JSON.stringify({
+    questoes: [{
+      texto_base: 42,
+      title: 'Questão inválida',
+      answer_options: [],
+      correct_answer_index: null,
+    }],
+  })), /incompleta ou inválida/);
 });

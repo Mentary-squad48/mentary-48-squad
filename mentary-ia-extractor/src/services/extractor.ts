@@ -23,6 +23,7 @@ export interface QuestaoMentary {
   question_id: string | null;
   fk_user_id: string | null;
   fk_institution_id: string | null;
+  texto_base: string | null;
   title: string;
   question_type: string;
   content_type: "image" | "glb" | "url" | null;
@@ -59,6 +60,11 @@ const schemaQuestoes: Schema = {
       items: {
         type: Type.OBJECT,
         properties: {
+          texto_base: {
+            type: Type.STRING,
+            nullable: true,
+            description: "Texto-base ou suporte compartilhado pela questão, se houver",
+          },
           title: { type: Type.STRING, description: "O enunciado principal da questão" },
           question_type: { type: Type.STRING, enum: ["MULTIPLA ESCOLHA"] },
           content_type: { type: Type.STRING, nullable: true },
@@ -92,6 +98,7 @@ const schemaQuestoes: Schema = {
           }
         },
         required: [
+          "texto_base",
           "title",
           "question_type",
           "correct_answer_index",
@@ -109,7 +116,8 @@ const schemaQuestoes: Schema = {
 };
 
 const SYSTEM_INSTRUCTION = `Você é o motor de IA pedagógica da plataforma Mentary.
-Extraia todas as questões, incluindo enunciado, alternativas, gabarito e qualquer informação visual relevante.
+Extraia todas as questões, separando o texto-base ou suporte compartilhado do enunciado, das alternativas e do gabarito preliminar.
+Retorne texto_base como null quando a questão não tiver um texto-base ou suporte próprio.
 Classifique assunto/componente curricular, ano escolar, dificuldade, descritor SAEB e habilidade BNCC.
 Em metadata.bncc informe o código BNCC e em metadata.habilidade_bncc descreva a habilidade correspondente.
 Não invente códigos curriculares: retorne null quando não houver evidência suficiente.
@@ -152,11 +160,11 @@ async function chamarGeminiComRetry(contents: ContentListUnion, retries = 3, del
   throw new Error('Não foi possível obter resposta do Gemini após as tentativas configuradas.');
 }
 
-function interpretarResposta(response: GenerateContentResponse, sourcePages?: number[]): QuestaoMentary[] {
-  if (!response.text) {
+export function interpretarQuestoes(responseText: string, sourcePages?: number[]): QuestaoMentary[] {
+  if (!responseText) {
     throw new Error('O Gemini retornou uma resposta vazia.');
   }
-  const result: unknown = JSON.parse(response.text);
+  const result: unknown = JSON.parse(responseText);
   if (typeof result !== 'object' || result === null || !('questoes' in result) || !Array.isArray(result.questoes)) {
     throw new Error('O Gemini retornou JSON sem a lista obrigatória "questoes".');
   }
@@ -164,6 +172,7 @@ function interpretarResposta(response: GenerateContentResponse, sourcePages?: nu
   return result.questoes.map((item: unknown, index: number) => {
     if (typeof item !== 'object' || item === null || !('title' in item) || typeof item.title !== 'string' ||
       !('answer_options' in item) || !Array.isArray(item.answer_options) ||
+      !('texto_base' in item) || (typeof item.texto_base !== 'string' && item.texto_base !== null) ||
       !('correct_answer_index' in item) ||
       (typeof item.correct_answer_index !== 'number' && item.correct_answer_index !== null)) {
       throw new Error(`A questão ${index + 1} retornada pelo Gemini está incompleta ou inválida.`);
@@ -189,6 +198,7 @@ function interpretarResposta(response: GenerateContentResponse, sourcePages?: nu
       question_id: question.question_id ?? null,
       fk_user_id: question.fk_user_id ?? null,
       fk_institution_id: question.fk_institution_id ?? null,
+      texto_base: question.texto_base ?? null,
       title,
       question_type: question.question_type ?? 'MULTIPLA ESCOLHA',
       content_type: question.content_type ?? null,
@@ -205,6 +215,13 @@ function interpretarResposta(response: GenerateContentResponse, sourcePages?: nu
       metadata,
     };
   });
+}
+
+function interpretarResposta(response: GenerateContentResponse, sourcePages?: number[]): QuestaoMentary[] {
+  if (!response.text) {
+    throw new Error('O Gemini retornou uma resposta vazia.');
+  }
+  return interpretarQuestoes(response.text, sourcePages);
 }
 
 export function agruparPaginas(totalPaginas: number, tamanhoLote = 5, sobreposicao = 1): number[][] {

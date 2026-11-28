@@ -43,10 +43,17 @@ function getUuidParam(request: Request, response: Response): string | null {
 const questionSelection = {
   id: true,
   enunciado: true,
+  textoBase: true,
   alternativas: true,
+  explicacao: true,
+  componenteCurricular: true,
   gabaritoCorreto: true,
   descritorSaeb: true,
   ehHomologada: true,
+  status: true,
+  validadorId: true,
+  dataValidacao: true,
+  motivoRejeicao: true,
   metadata: true,
 } as const;
 
