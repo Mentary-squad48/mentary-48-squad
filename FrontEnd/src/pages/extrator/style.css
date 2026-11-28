@@ -106,3 +106,8 @@
 .dropzone__title { font-size: 22px; text-align: center; }
 .dropzone__hint { font-size: 14px; color: var(--text-muted); }
 .dropzone__btn { margin-top: 8px; padding: 10px 20px; font-size: 14px; }
+
+/* Estados novos do FileCard */
+.status--erro { color: var(--bad-text); }
+.filecard__error { color: var(--bad-text); }
+.filecard__retry { width: auto; align-self: flex-start; padding: 6px 16px; font-size: 14px; }

@@ -1,0 +1,41 @@
+.resumo__doc {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--gray);
+  border-radius: 20px;
+}
+.resumo__counts { margin-top: 4px; font-size: 14px; color: var(--text-muted); }
+
+.resumo__list { list-style: none; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.resumo__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--gray);
+  border-radius: 14px;
+}
+.resumo__num {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--blue-text); border-radius: 50%; color: var(--blue-text);
+}
+.resumo__text {
+  flex: 1; min-width: 0;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.resumo__edit { background: none; border: none; display: flex; color: var(--text-muted); }
+.resumo__edit:hover { color: var(--blue-text); }
+
+.badge { padding: 4px 12px; border: 1px solid; border-radius: 999px; font-size: 13px; white-space: nowrap; }
+.badge--aprovada, .badge--salva { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok-text); }
+.badge--recusada { background: var(--bad-bg); border-color: var(--bad-line); color: var(--bad-text); }
+.badge--depois { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-text); }
+.badge--pendente { background: var(--field); border-color: var(--line-soft); color: var(--text-muted); }
+
+.resumo__ok { margin-top: 16px; color: var(--ok-text); }
+.resumo__actions { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
+.resumo__new { width: auto; padding: 12px 24px; }

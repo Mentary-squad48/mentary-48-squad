@@ -1,0 +1,11 @@
+@import '../resumo/style.css';
+
+.depois__list { list-style: none; margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
+.depois__item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px; background: var(--gray); border-radius: 16px;
+  border-left: 4px solid var(--warn-line);
+}
+.depois__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.depois__body small { color: var(--text-muted); }
+.depois__empty { margin-top: 80px; display: flex; flex-direction: column; align-items: center; gap: 16px; color: var(--text-muted); }

@@ -1,26 +1,32 @@
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Check, X, AlertCircle } from 'lucide-react'
 import Sidebar from '../../components/sidebar'
 import Select from '../../components/select'
 import DocViewer from '../../components/docviewer'
 import RejectModal from '../../components/rejectmodal'
 import avatar from '../../assets/avatar.png'
-import { DISCIPLINAS, BNCC, SAEB, DIFICULDADES, QUESTOES_EXTRAIDAS } from '../../data/mock'
+import { DISCIPLINAS, BNCC, SAEB, DIFICULDADES } from '../../data/mock'
+import { useExtracao } from '../../contexts/ExtracaoContext'
+import { API_SALVA_EDICOES, approveQuestion, updateQuestion } from '../../services/documents'
 import './style.css'
 import ThemeToggle from '../../components/themetoggle'
 
-const LETTERS = ['A', 'B', 'C', 'D']
+const LETTERS = ['A', 'B', 'C', 'D', 'E']
 
 function Revisao() {
-  const { state } = useLocation() // { fileUrl, fileName } vindos do Extrator
-  const [questions, setQuestions] = useState(QUESTOES_EXTRAIDAS)
-  const [current, setCurrent] = useState(0)
+  const { state } = useLocation() // { index } opcional: abrir direto numa questão (vindo do Resumo)
+  const navigate = useNavigate()
+  const { questions, setQuestions, file } = useExtracao()
+  const [current, setCurrent] = useState(state?.index ?? 0)
   const [errors, setErrors] = useState([])
   const [rejecting, setRejecting] = useState(false)
+  const [busy, setBusy] = useState(false)
 
   const q = questions[current]
   const reviewed = questions.filter((item) => item.status !== 'pendente').length
+
+  if (!q) return <Navigate to="/extrator" replace /> // sem extração em memória
 
   function update(patch) {
     setQuestions((prev) => prev.map((item, i) => (i === current ? { ...item, ...patch } : item)))
@@ -37,6 +43,7 @@ function Revisao() {
 
   function next() {
     if (current < questions.length - 1) goTo(current + 1)
+    else navigate('/resumo') // fim da revisão
   }
 
   function validate() {
@@ -45,15 +52,28 @@ function Revisao() {
     if (q.alternativas.some((a) => !a.trim())) list.push('Preencha todas as alternativas.')
     if (!q.disciplina || !q.bncc) list.push('Selecione a disciplina e a habilidade BNCC.')
     if (!q.dificuldade) list.push('Selecione o nível de dificuldade.')
+    if (q.gabarito === null || q.gabarito === undefined) list.push('Marque o gabarito.')
     return list
   }
 
-  function approve() {
+  async function approve() {
     const list = validate()
     setErrors(list)
     if (list.length) return
-    update({ status: 'aprovada' })
-    next()
+
+    setBusy(true)
+    try {
+      if (q.serverId) {
+        if (API_SALVA_EDICOES) await updateQuestion(q.serverId, q) // grava as edições antes de homologar
+        await approveQuestion(q.serverId)
+      }
+      update({ status: 'aprovada' })
+      next()
+    } catch (err) {
+      setErrors([err.message])
+    } finally {
+      setBusy(false)
+    }
   }
 
   function later() {
@@ -90,16 +110,25 @@ function Revisao() {
           <span className="stepper__info">
             Questão {current + 1} de {questions.length} · {reviewed} revisadas
           </span>
+          <button className="btn-outline stepper__summary" onClick={() => navigate('/resumo')}>
+            Ver resumo
+          </button>
         </nav>
 
         <div className="revisao__split">
           {/* Esquerda: documento original */}
-          <DocViewer url={state?.fileUrl} name={state?.fileName} />
+          <DocViewer url={file?.url} name={file?.name} />
 
           {/* Direita: formulário */}
           <section className="revisao__form">
             {q.status === 'recusada' && (
               <p className="notice">Recusada. Motivo: {q.motivo}</p>
+            )}
+
+            {!API_SALVA_EDICOES && q.status !== 'aprovada' && (
+              <p className="notice notice--info">
+                Atenção: a API ainda não salva edições. Ao aprovar, a questão é homologada como foi extraída.
+              </p>
             )}
 
             <div className="field">
@@ -183,12 +212,12 @@ function Revisao() {
             )}
 
             <footer className="revisao__actions">
-              <button className="action action--later" onClick={later}>Revisar depois</button>
-              <button className="action action--refuse" onClick={() => setRejecting(true)}>
+              <button className="action action--later" onClick={later} disabled={busy}>Revisar depois</button>
+              <button className="action action--refuse" onClick={() => setRejecting(true)} disabled={busy}>
                 Rejeitar <X size={20} />
               </button>
-              <button className="action action--approve" onClick={approve}>
-                Aprovar <Check size={20} />
+              <button className="action action--approve" onClick={approve} disabled={busy}>
+                {busy ? 'Aprovando…' : 'Aprovar'} <Check size={20} />
               </button>
             </footer>
           </section>

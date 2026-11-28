@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { UploadCloud, Upload } from 'lucide-react'
 
-const EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'xlsx']
-const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
+const EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg'] // formatos aceitos pela API
+const MAX_SIZE = 25 * 1024 * 1024 // 25 MB (limite da API)
 
 function Dropzone({ onFile, onError }) {
   const inputRef = useRef(null)
@@ -24,7 +24,7 @@ function Dropzone({ onFile, onError }) {
       return
     }
     if (file.size > MAX_SIZE) {
-      onError(`"${file.name}": acima de 5 MB.`)
+      onError(`"${file.name}": acima de 25 MB.`)
       return
     }
 
@@ -48,7 +48,7 @@ function Dropzone({ onFile, onError }) {
     >
       <UploadCloud size={72} strokeWidth={1.2} className="dropzone__icon" />
       <p className="dropzone__title">Escolha o arquivo ou arraste e solte</p>
-      <p className="dropzone__hint">1 arquivo · PDF, PNG, JPG ou XLSX até 5 MB</p>
+      <p className="dropzone__hint">1 arquivo · PDF, PNG ou JPG até 25 MB</p>
 
       <button className="btn-blue dropzone__btn" onClick={() => inputRef.current.click()}>
         <Upload size={20} />
@@ -58,7 +58,7 @@ function Dropzone({ onFile, onError }) {
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,.png,.jpg,.jpeg,.xlsx"
+        accept=".pdf,.png,.jpg,.jpeg"
         hidden
         onChange={(e) => {
           handle(e.target.files)

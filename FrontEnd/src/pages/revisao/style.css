@@ -184,3 +184,9 @@ textarea:focus { outline: 2px solid var(--blue); border-color: transparent; }
 
 .modal__footer { display: flex; justify-content: flex-end; gap: 10px; }
 .modal__footer .btn-outline { width: auto; padding: 12px 24px; }
+
+/* Botão "Ver resumo" na barra de etapas */
+.stepper__summary { width: auto; margin-left: auto; padding: 8px 18px; font-size: 14px; }
+
+/* Aviso informativo */
+.notice--info { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-line); }

@@ -1,9 +1,9 @@
-import { FileText, Trash2, Loader2, CheckCircle2, Clock } from 'lucide-react'
+import { FileText, Trash2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 
 const STATUS = {
-  fila: { label: 'Na fila', icon: <Clock size={16} /> },
   processando: { label: 'Processando (IA/OCR)', icon: <Loader2 size={16} className="spin" /> },
   pronto: { label: 'Pronto para revisão', icon: <CheckCircle2 size={16} /> },
+  erro: { label: 'Falha no processamento', icon: <AlertCircle size={16} /> },
 }
 
 function formatSize(bytes) {
@@ -12,7 +12,7 @@ function formatSize(bytes) {
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function FileCard({ file, onRemove }) {
+function FileCard({ file, onRemove, onRetry }) {
   if (!file) {
     return (
       <div className="filecard filecard--empty">
@@ -45,6 +45,13 @@ function FileCard({ file, onRemove }) {
             {STATUS[file.status].icon}
             {STATUS[file.status].label}
           </span>
+        )}
+
+        {file.status === 'erro' && (
+          <>
+            {file.error && <small className="filecard__error">{file.error}</small>}
+            <button className="btn-outline filecard__retry" onClick={onRetry}>Tentar novamente</button>
+          </>
         )}
       </div>
 
